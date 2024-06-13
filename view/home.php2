@@ -1,0 +1,248 @@
+
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+session_start();
+
+// Verificar si ya tenemos un token de acceso en la sesión
+if (isset($_SESSION['github_access_token'])) {
+    // Si hay un token de acceso, listar los repositorios del usuario
+    listRepositories();
+    // Llamar a la función para mostrar el perfil del usuario
+    displayUserProfile();
+
+    updateUserInfo();
+} elseif (isset($_GET['code'])) {
+    // Si recibimos un código de autorización de GitHub, intercambiamos por un token de acceso
+    exchangeCodeForAccessToken($_GET['code']);
+} else {
+    // Si no hay un token de acceso, redirigir al usuario a la página de inicio de sesión de GitHub
+    redirectToGitHubLoginPage();
+}
+
+// Función para intercambiar el código de autorización por un token de acceso
+function exchangeCodeForAccessToken($code) {
+    $token_url = "https://github.com/login/oauth/access_token";
+    $params = array(
+        'client_id' => '4ca87aec846e119258f4',
+        'client_secret' => '1bb35a027bf0a51875b9e04061b71985599acc9e',
+        'code' => $code
+    );
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $token_url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json'));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+
+    // Verificar si hay errores en la solicitud cURL
+    if (curl_errno($ch)) {
+        echo 'Error al realizar la solicitud cURL: ' . curl_error($ch);
+        return;
+    }
+
+    curl_close($ch);
+
+    $data = json_decode($response, true);
+
+    // Verificar si se recibió un token de acceso
+    if (isset($data['access_token'])) {
+        $_SESSION['github_access_token'] = $data['access_token'];
+
+        echo "Token de acceso obtenido correctamente."; // Mensaje de depuración
+         // Si hay un token de acceso, listar los repositorios del usuario
+    listRepositories();
+    // Llamar a la función para mostrar el perfil del usuario
+    displayUserProfile();
+
+        // Llama a updateUserInfo() aquí para verificar si se ejecuta
+        updateUserInfo();
+
+  
+    } else {
+        echo "Error al obtener el token de acceso.";
+        redirectToHome();
+    }
+}
+// Función para redirigir al usuario a la página de inicio de sesión de GitHub
+function redirectToHome() {
+    $login_url = "https://dam107.auroraswebs.es/view/home.php";
+    header("Location: $login_url");
+    exit();
+}
+
+// Función para listar los repositorios del usuario con botones para crear proyectos
+function listRepositories() {
+    // Obtener el token de acceso de la sesión
+    $access_token = $_SESSION['github_access_token'];
+    // Construir la URL para obtener la lista de repositorios del usuario, incluyendo los privados
+    $repos_url = "https://api.github.com/user/repos?type=all";
+
+    // Realizar la solicitud GET a la API de GitHub
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $repos_url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'User-Agent: AgileDesignDev', 'Authorization: Bearer ' . $access_token));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    // Decodificar la respuesta JSON
+    $repos = json_decode($response, true);
+
+    // Verificar si la decodificación fue exitosa y si la estructura de datos es la esperada
+    if (is_array($repos) && isset($repos[0]['name'])) {
+        // Mostrar la lista de repositorios
+        echo "<h2>Lista de Repositorios:</h2>";
+        echo "<ul>";
+        foreach ($repos as $repo) {
+            echo "<li>{$repo['name']}</li>";
+            echo "<form method='post'>";
+            echo "<input type='hidden' name='repoId' value='{$repo['id']}'>";
+            echo "<input type='hidden' name='repoName' value='{$repo['name']}'>";
+            echo "<input type='hidden' name='ownerId' value='{$repo['owner']['id']}'>";
+            echo "<button type='submit' name='crearProyectoBtn'>Crear Proyecto en {$repo['name']}</button>";
+            echo "</form>";
+        }
+        echo "</ul>";
+    } else {
+        echo "No se pudo obtener la lista de repositorios o la respuesta no tiene el formato esperado.";
+        echo "Respuesta de la API de GitHub: " . $response;
+    }
+}
+
+// Procesar la creación de un proyecto al hacer clic en un botón
+if (isset($_POST['crearProyectoBtn'])) {
+    // Verificar si se han enviado los datos necesarios
+    if (isset($_POST['repoId'], $_POST['repoName'], $_POST['ownerId'])) {
+        $repoId = $_POST['repoId'];
+        $repoName = $_POST['repoName'];
+        $ownerId = $_POST['ownerId'];
+
+        // Crear una nueva instancia de ProjectController y llamar a crearProyecto
+        require_once '../controller/projectcontroller.php';
+        $projectController = new ProjectController();
+        $projectController->crearProyecto($repoId, "Nuevo Proyecto en $repoName", $ownerId);
+    } else {
+        echo "Error: Datos insuficientes para crear el proyecto.";
+    }
+}
+
+
+// Función para obtener la información del usuario desde la API de GitHub
+function getUserInfo() {
+    // Obtener el token de acceso de la sesión
+    $accessToken = $_SESSION['github_access_token'];
+
+    // Construir la URL para obtener la información del usuario desde la API de GitHub
+    $userUrl = "https://api.github.com/user";
+
+    // Inicializar la solicitud CURL
+    $ch = curl_init();
+
+    // Establecer las opciones para la solicitud CURL
+    curl_setopt($ch, CURLOPT_URL, $userUrl);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Accept: application/vnd.github.v3+json', // Indica la versión de la API que queremos usar
+        'Authorization: Bearer ' . $accessToken, // Incluye el token de acceso en el encabezado de autorización
+        'User-Agent: My-App' // Puedes especificar el nombre de tu aplicación aquí
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Indica que queremos recibir la respuesta como una cadena
+
+    // Ejecutar la solicitud CURL y obtener la respuesta
+    $response = curl_exec($ch);
+
+    // Verificar si la solicitud fue exitosa
+    if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 200) {
+        curl_close($ch);
+        return null; // Retorna null si hubo un error al obtener la información del usuario
+    }
+
+    // Decodificar la respuesta JSON en un array asociativo
+    $userInfo = json_decode($response, true);
+
+    // Cerrar la sesión CURL
+    curl_close($ch);
+
+    return $userInfo; // Retorna los datos del usuario obtenidos de la API de GitHub
+}
+
+// Función para mostrar los detalles del perfil del usuario de GitHub en HTML
+function displayUserProfile() {
+    $userInfo = getUserInfo();
+
+    // Mostrar los detalles del perfil del usuario en HTML
+    echo "<h2>Detalles del Perfil de GitHub:</h2>";
+    echo "<p><strong>Id de usuario:</strong> {$userInfo['id']}</p>";
+    echo "<img src='{$userInfo['avatar_url']}' alt='Avatar'>";
+    echo "<p><strong>Nombre de Usuario:</strong> {$userInfo['login']}</p>";
+    echo "<p><strong>Nombre:</strong> {$userInfo['name']}</p>";
+    echo "<p><strong>Ubicación:</strong> {$userInfo['location']}</p>";
+    echo "<p><strong>Repositorios Públicos:</strong> {$userInfo['public_repos']}</p>";
+    echo "<p><strong>Gists Públicos:</strong> {$userInfo['public_gists']}</p>";
+    echo "<p><strong>Seguidores:</strong> {$userInfo['followers']}</p>";
+    echo "<p><strong>Siguiendo:</strong> {$userInfo['following']}</p>";
+    echo "<p><strong>Tipo:</strong> {$userInfo['type']}</p>";
+    echo "<p><strong>Fecha de Creación:</strong> {$userInfo['created_at']}</p>";
+    echo "<p><strong>Última Actualización:</strong> {$userInfo['updated_at']}</p>";
+    echo "<p><strong>Plan:</strong> {$userInfo['plan']['name']}</p>";
+}
+
+
+
+// Función para redirigir al usuario a la página de inicio de sesión de GitHub
+function redirectToGitHubLoginPage() {
+    $login_url = "https://github.com/login/oauth/authorize?client_id=4ca87aec846e119258f4";
+    header("Location: $login_url");
+    exit();
+}
+
+function updateUserInfo() {
+    $userInfo = getUserInfo();
+
+    $id = $userInfo['id'];
+    $userName = $userInfo['login'];
+    $name = $userInfo['name'];
+    $location = $userInfo['location'];
+    $followers = $userInfo['followers'];
+    $follows = $userInfo['following'];
+    $userPhotoUrl = $userInfo['avatar_url'];
+    
+    require_once '../controller/usercontroller.php';
+    
+    // Crear una instancia del UserController
+    $userController = new UserController();
+    
+    // Obtener el usuario por su ID
+    $existingUser = $userController->getUserById($id);
+    
+    if ($existingUser) {
+        // Si el usuario existe, actualizar la información
+        $updatedUser = $userController->updateUser($id, $userName, $name, $location, $followers, $follows, $userPhotoUrl);
+        
+        if ($updatedUser) {
+            // Imprimir mensaje en la consola del navegador
+            echo '<script>console.log("Usuario actualizado exitosamente.");</script>';
+        } else {
+            // Imprimir mensaje en la consola del navegador
+            echo '<script>console.error("Error al actualizar el usuario.");</script>';
+        }
+    } else {
+        // Si el usuario no existe, crear uno nuevo con la información proporcionada
+        $newUser = $userController->createUser($id, $userName, $name, $location, $followers, $follows, $userPhotoUrl);
+        
+        if ($newUser) {
+            // Imprimir mensaje en la consola del navegador
+            echo '<script>console.log("Usuario creado exitosamente.");</script>';
+        } else {
+            // Imprimir mensaje en la consola del navegador
+            echo '<script>console.error("Error al crear el usuario.");</script>';
+        }
+    }
+}
+
+
+?>

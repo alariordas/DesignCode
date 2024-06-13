@@ -1,0 +1,401 @@
+/*Constantes*/
+body {
+    background-color: #0d1117;
+  
+    /* Definir el fondo con dos capas de degradado */
+    background-image:
+      linear-gradient(to bottom, rgba(87, 90, 93, 0.8) 0.1em, transparent 0.1em),
+      /* Degradado más fuerte hacia abajo */
+      linear-gradient(90deg, rgba(87, 90, 93, 0.3) 0.1em, transparent 0.1em);
+    /* Degradado más débil hacia arriba */
+  
+    background-size: 3vw 3vw;
+    /* Tamaño de los patrones de fondo */
+  
+  }
+  *{
+    margin:0;
+    padding:0;
+    
+  }
+  
+  h1 {
+    color: white;
+    font-family: inter;
+    font-size: 4vw;
+  
+  }
+  
+  h2 {
+    color: white;
+    font-family: inter;
+    font-size: 2vw;
+  }
+  
+  p {
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.5vw;
+  }
+  
+  /*index.php*/
+  * {
+    margin: 0px;
+    padding: 0px;
+  }
+  
+  button {
+    border: 0.2vw solid rgba(255, 255, 255, 0.281);
+  }
+  header nav{
+    padding: 2vw;
+    background-color: #0d1117;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+  header nav div{
+   display: flex;
+    gap: 1vw;
+    align-items: center;
+  }
+  header nav div a{
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  header nav div a:hover{
+    text-shadow: 1px 1px 5px rgba(255, 255, 255, 0.22);
+    scale: 1.03;
+  }
+  
+  .search{
+    background-color: #2c3648;
+    padding: 0.5vw;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.418);
+    width: 12vw;
+    margin-right: 4vw;
+  }
+  .search input{
+    background-color: transparent;
+    border: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    font-size: 1vw;
+    max-width: 300px; /* Establece el ancho máximo del campo de entrada */
+      
+      box-sizing: border-box; /* Incluye el padding en el ancho total */
+      overflow-x: auto;
+  }
+  .search input::placeholder{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    font-size: 1vw;
+  }
+  .search input:focus{
+    outline: none;
+  }
+  .search button{
+    margin-right: 5px;
+    background-color: transparent;
+    border: none;
+  }
+  .search button:hover{
+   cursor: pointer;
+  }
+  .search button img{
+    height: 2vw;
+  }
+  
+  .filters{
+    background: #0d1117;
+  }
+  .filters form div{
+    display: flex;
+    gap: 2vw;
+    padding-inline: 3vw;
+    list-style-type: none;
+  }
+  
+  .filters div button{
+    flex: 1;
+   height: 3.5vw;
+  
+  }
+  .filter-button {
+      background-color: transparent;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 2vw;
+      color: white;
+  }
+  
+  .filter-button.active {
+      background-color: #2d384a; /* Color cuando está activo (presionado) */
+      border-radius: 25px;
+      color: #fff; /* Color del texto cuando está activo */
+      border: 2px solid rgba(255, 255, 255, 0.665);
+  }
+  
+  .grid {
+    background: linear-gradient(#0d1117 20%, transparent);
+    padding: 10px;
+    padding-inline: 3vw;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    column-gap: 3vw;
+    row-gap: 3vw;
+  
+  }
+  
+  article {
+    display: flex;
+    flex-direction: column;
+    /* Cambia la dirección del flexbox a columna */
+    overflow: hidden;
+    /* Oculta cualquier contenido que se desborde */
+    transition: transform 0.1s ease;
+  }
+  
+  article:hover {
+    transform: scale(1.02);
+    display: flex;
+    flex-direction: column;
+    /* Cambia la dirección del flexbox a columna */
+    overflow: hidden;
+    /* Oculta cualquier contenido que se desborde */
+  }
+  
+  article .imgContainer img {
+    background-color: #d9d9d9;
+    width: 100%;
+    /* La imagen ocupa el ancho completo del contenedor */
+    aspect-ratio: 1.16/1;
+    object-fit: cover;
+    /* La imagen se ajusta y recorta para llenar el contenedor */
+    border-radius: 4px;
+    box-shadow: 1px 1px 6px black;
+    margin-bottom: 6px;
+    z-index: 1;
+  
+  }
+  
+  article button {
+    width: 100%;
+    aspect-ratio: 1/1;
+    position: fixed;
+    z-index: 4;
+    background-color: transparent;
+    border: none;
+  }
+  
+  article button:hover {
+    cursor: pointer;
+  }
+  
+  
+  .gradient {
+    border-radius: 4px;
+    position: fixed;
+    width: 16.46vw;
+    /* La imagen ocupa el ancho completo del contenedor */
+    aspect-ratio: 1.16/1;
+    background: linear-gradient(to top, black, transparent);
+    z-index: 20;
+    opacity: 0;
+    /* Inicialmente oculto */
+    transition: opacity 0.2s ease;
+    /* Transición suave de opacidad */
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+  }
+  
+  .gradient p {
+    padding: 5px;
+    font-size: 1vw;
+    text-align: start;
+  }
+  
+  /* Mostrar el gradiente al hacer hover */
+  .gradient:hover {
+    opacity: 1;
+    /* Mostrar el gradiente al hacer hover */
+  }
+  
+  .card-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    flex: 1;
+  }
+  
+  .card-container .left {
+    display: flex;
+    gap: 0.5vw;
+  }
+  
+  .card-container .left img {
+    width: 1.5vw;
+    aspect-ratio: 1/1;
+    border-radius: 100%;
+  }
+  
+  .left a {
+    font-size: 1vw;
+    font-family: inter;
+    color: white;
+    font-style: normal;
+    text-decoration: none;
+  }
+  
+  .action{
+    position:fixed;
+    top:0px;
+    right:5px;
+    scale: 0.6;
+  
+  }
+  .action .profile{
+    top: 1vw;
+    position:relative;
+    width:6vw;
+    height:6vw;
+    border-radius:50%;
+    overflow:hidden;
+    cursor:pointer;
+  }
+  .action .profile img{
+    position:absolute;
+    top:0; left:0;
+    height:100%;
+    object-fit:cover;
+  }
+  .action .menu{
+    display: block;
+    position:absolute;
+    top:110px;
+    right:-10px;
+    padding:10px 20px;
+    background: #192230;
+    width:25vw;
+    box-sizing: 0 5px 25px rgba(0,0,0,.1);
+    border-radius:15px;
+    transition:.5s;
+    visibility:hidden;
+    opacity:0;
+  }
+  .action .menu.active{
+    background-color: #192230;
+    border: 1px solid rgba(255, 255, 255, 0.555);
+    box-shadow: 0px 0px 12px black;
+    top:10vw;
+    visibility:visible;
+    opacity:1;
+  }
+  .action .menu::before{
+    content:'';
+    position:absolute;
+    top:-5px;
+    right:28px;
+    width:20px;
+    height:20px;
+    background: #192230;
+    transform: rotate(45deg);
+  }
+  .action .menu h3{
+    width:100%;
+    text-align:center;
+    font-size: 18px;
+    padding:20px 0;
+    font-weight: 500;
+    font-size: 2.5vw;
+    color:#ffffff;
+    line-height: 1.2em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .action .menu h3 span{
+    font-size: 1.8vw;
+    color:#cecece;
+    font-weight: 400;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .action .menu ul li{
+    list-style:none;
+    padding:10px 0;
+    border-top:1px solid rgba(255, 255, 255, 0.083);
+    display:flex;
+    align-items:center;
+    
+  }
+  .action .menu ul li i{
+    font-size: 26px;
+    width:32px;
+    margin-right: 10px;
+    opacity:.6;
+    transition:.5s;
+  }
+  .action .menu ul li:hover i{
+    opacity:1;
+  }
+  .action .menu ul li a{
+    display:inline-block;
+    text-decoration:none;
+    color:#ffffff;
+    font-weight: 500;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 2vw;
+    transition:.2s;
+  }
+  .action .menu ul li:hover a{
+    color:#d14cff
+  }
+  
+  
+  
+  
+  
+  
+  
+  /* Dialogo con cuenta
+   /* Estilo para el fondo oscuro detrás del diálogo */
+  dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.6);
+    /* Fondo negro semi-transparente */
+  }
+  
+  /* Estilo para el diálogo */
+  dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 75vw;
+    /* Ancho del diálogo */
+    background-color: #0d1117;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    z-index: 1001;
+    /* Colocar encima del fondo oscuro */
+  }
+  
+  /* Estilo para el botón dentro del diálogo */
+  dialog button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #1f6feb;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  /* Estilo para el botón cuando está enfocado */
+  dialog button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #ffffff;
+  }
