@@ -1,0 +1,11 @@
+{
+    "name": "monchi/app",
+    "authors": [
+        {
+            "name": "Angel"
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    }
+}

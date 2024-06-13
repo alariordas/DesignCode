@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+</head>
+
+<body>
+  <header>
+    <h2><span>Design</span><span style="color: #d14cff">Code</span></h2>
+    <h1 style="text-align: center">
+      <span>La Plataforma web para <br>gestionar</span><span style="color: #d14cff"> proyectos</span></h1>
+    <a href="https://dam107.auroraswebs.es/view/login.php"><button class="start">Empieza Ahora</button></a>
+  </header>
+  <section class="grid">
+
+
+  <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+session_start();
+
+// Verificar si ya tenemos un token de acceso en la sesión
+if (isset($_SESSION['github_access_token'])) {
+    // Redirigir al usuario a la página de inicio de sesión de GitHub
+    redirectToHome();
+}
+
+require_once 'controller/projectcontroller.php';
+
+// Crear una instancia del controlador
+$projectController = new ProjectController();
+
+
+// Obtener todos los proyectos
+$projects = $projectController->getAllProjects();
+
+
+// Asegurarse de incluir UserController y crear una instancia
+require_once 'controller/usercontroller.php';
+$userController = new UserController();
+
+// Verificar si hay proyectos para procesar
+if (!empty($projects)) {
+    // Iterar sobre cada proyecto obtenido
+    foreach ($projects as $project) {
+       
+        $user = $userController->getUserById($project->getOwnerId());
+      
+        // Verificar si se encontró el usuario
+        echo "<article>";
+        echo "<div class='imgContainer'>";
+        echo "<button class='gradient' onclick='mostrarDialogo()'><p>" . $project->getName() . "</p></button>";
+        echo "<img src='https://www.pngall.com/wp-content/uploads/15/Example-PNG-HD-Image.png' alt='Imagen del proyecto'>";
+        echo "</div>";
+        echo "<div class='card-container'>";
+        echo "<div class='left'>";
+        echo "<img src='" . $user->getUserPhotoUrl() . "' alt='Foto de perfil de usuario'>";
+        echo "<a href='asdasd'>" . $user->getUserName() . "</a>";
+        echo "</div>";
+        echo "<div class='right'>";
+        echo "</div>";
+        echo "</div>";
+        echo "</article>";
+           
+       
+    }
+} else {
+    // No se encontraron proyectos
+    echo "No projects found.";
+}
+
+
+// Función para redirigir al usuario a la página de inicio de sesión de GitHub
+function redirectToHome() {
+    $login_url = "https://dam107.auroraswebs.es/view/home.php";
+    header("Location: $login_url");
+    exit();
+}
+?>
+</section>
+
+<section class="end">
+  <a href="https://dam107.auroraswebs.es/view/login.php"><button class="start">Inicia sesión para continuar</button></a>
+</section>
+</body>
+
+<dialog id="miDialogo">
+<div>
+   <h2><span>Design</span><span style="color: #d14cff">Code</span></h2>
+   <p>Para acceder al proyecto, porfavor incia sesión</p>
+  <a href="https://dam107.auroraswebs.es/view/login.php"><button class="start">Inicia sesión</button></a>
+  <p class="advice">No tienes una cuenta, no te preocupes se creara una cuenta automáticamente</p>
+  <button class="close" onclick="cerrarDialogo()">X</button>
+</div>
+</dialog>
+
+<script>
+// Función para mostrar el diálogo con datos dinámicos
+       
+      function mostrarDialogo() {
+        const dialogo = document.getElementById("miDialogo");
+          // Mostrar el diálogo
+          dialogo.showModal();
+
+          // Agregar un event listener para cerrar el diálogo al hacer clic en el backdrop
+          dialogo.addEventListener('click', cerrarDialogoEnBackdrop);
+      }
+
+      // Función para cerrar el diálogo
+      function cerrarDialogo() {
+          const dialogo = document.getElementById('miDialogo');
+
+          // Cerrar el diálogo
+          dialogo.close();
+
+          // Remover el event listener
+          dialogo.removeEventListener('click', cerrarDialogoEnBackdrop);
+      }
+
+      // Función para cerrar el diálogo al hacer clic en el backdrop
+      function cerrarDialogoEnBackdrop(event) {
+          const dialogo = document.getElementById('miDialogo');
+
+          // Verificar si el clic ocurrió en el backdrop
+          if (event.target === dialogo) {
+              // Cerrar el diálogo
+              dialogo.close();
+
+              // Remover el event listener
+              dialogo.removeEventListener('click', cerrarDialogoEnBackdrop);
+          }
+      }
+
+      
+</script>
+<link rel="stylesheet" href="/styles/index.css">
+</html>
